@@ -3,7 +3,7 @@
 A **full-stack e-commerce web application** built in **2 weeks (28 hours)** to showcase modern engineering practices.  
 Features product catalog, user authentication, shopping cart, checkout simulation, an ML-based recommender, and an **AI shopping assistant** powered by **LangChain**.  
 
-🚀 Built to demonstrate **full-stack, AI/ML, and cloud development skills** relevant to large-scale e-commerce platforms (Rakuten-style).  
+🚀 Built to demonstrate **full-stack, AI/ML, and cloud development skills** relevant to large-scale e-commerce platforms.  
 
 ---
 
