@@ -8,6 +8,8 @@ services:
       - db
     environment:
       - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+    volumes:
+      - ./backend/app:/app/app
 
   frontend:
     build: ./frontend
