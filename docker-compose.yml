@@ -18,6 +18,9 @@ services:
       - "5174:5173"  # Change host port from 5173 to 5174
     stdin_open: true
     tty: true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
   db:
     image: postgres:15
