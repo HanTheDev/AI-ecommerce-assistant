@@ -8,11 +8,11 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:8001/login", {
+    const res = await fetch("http://localhost:8001/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: new URLSearchParams({
-        username: form.email,   // FastAPI OAuth2PasswordRequestForm expects "username"
+      body: JSON.stringify({
+        email: form.email,
         password: form.password,
       }),
     });
