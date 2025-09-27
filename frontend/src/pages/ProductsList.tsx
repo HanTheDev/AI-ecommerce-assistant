@@ -26,29 +26,47 @@ export default function ProductsList() {
   }, []);
 
   return (
-    <div className="p-4">
-      <h2 className="text-red-500 text-3xl">Hello Tailwind</h2>
-      <h1 className="text-xl font-bold mb-4">Products</h1>
-      <ul className="space-y-2">
-        {products.map((p) => (
-          <li
-            key={p.id}
-            className="p-2 border rounded cursor-pointer hover:bg-gray-50"
-            onClick={() => setSelected(p)}
-          >
-            {p.name} - ${p.price}
-          </li>
-        ))}
-      </ul>
+    <div className="max-w-6xl mx-auto p-8">
+      <h1 className="text-3xl font-bold mb-8 text-gray-800">Our Products</h1>
 
-      {selected && (
-        <div className="mt-4 p-4 border rounded">
-          <h2 className="text-lg font-bold">{selected.name}</h2>
-          <p>{selected.description}</p>
-          <p className="text-sm text-gray-600">Stock: {selected.stock}</p>
-          <p className="font-semibold">Price: ${selected.price}</p>
+      <div className="grid md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <h2 className="text-xl font-semibold mb-4">Available Products</h2>
+          <div className="divide-y">
+            {products.map((p) => (
+              <div
+                key={p.id}
+                className="p-4 cursor-pointer hover:bg-gray-50 transition duration-150"
+                onClick={() => setSelected(p)}
+              >
+                <h3 className="font-medium text-gray-900">{p.name}</h3>
+                <p className="text-sm text-gray-500">Price: ${p.price}</p>
+              </div>
+            ))}
+          </div>
         </div>
-      )}
+
+        {selected && (
+          <div className="bg-white rounded-lg shadow-lg p-6">
+            <h2 className="text-2xl font-bold mb-4">{selected.name}</h2>
+            <p className="text-gray-600 mb-4">{selected.description}</p>
+            <div className="flex justify-between items-center bg-gray-50 p-4 rounded-lg">
+              <div>
+                <p className="text-sm text-gray-500">Available Stock</p>
+                <p className="font-semibold text-gray-900">
+                  {selected.stock} units
+                </p>
+              </div>
+              <div>
+                <p className="text-sm text-gray-500">Price</p>
+                <p className="text-2xl font-bold text-blue-600">
+                  ${selected.price}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
