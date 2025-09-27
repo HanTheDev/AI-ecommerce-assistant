@@ -27,6 +27,7 @@ export default function ProductsList() {
 
   return (
     <div className="p-4">
+      <h2 className="text-red-500 text-3xl">Hello Tailwind</h2>
       <h1 className="text-xl font-bold mb-4">Products</h1>
       <ul className="space-y-2">
         {products.map((p) => (
