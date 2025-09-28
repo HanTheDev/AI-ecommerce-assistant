@@ -1,28 +1,49 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    const res = await fetch("http://localhost:8001/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: form.email,
-        password: form.password,
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:8001/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+        }),
+        credentials: 'include'
+      });
 
-    if (res.ok) {
-      const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      window.location.href = "/admin"; // redirect after login
-    } else {
-      setError("Invalid credentials");
+      if (res.ok) {
+        const data = await res.json();
+        localStorage.setItem("token", data.access_token);
+        
+        // Fetch user data after successful login
+        const userRes = await fetch("http://localhost:8001/auth/me", {
+          headers: {
+            "Authorization": `Bearer ${data.access_token}`
+          }
+        });
+        
+        if (userRes.ok) {
+          const userData = await userRes.json();
+          setUser(userData);
+          navigate(userData.is_admin ? "/admin" : "/products");
+        }
+      } else {
+        setError("Invalid credentials");
+      }
+    } catch (err) {
+      setError("An error occurred. Please try again.");
     }
   };
 

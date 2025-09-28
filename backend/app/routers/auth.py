@@ -5,6 +5,7 @@ from datetime import timedelta
 from app import models, schemas
 from app.database import get_db
 from app.auth import hash_password, verify_password, create_access_token, ACCESS_TOKEN_EXPIRE_MINUTES
+from app.deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -30,3 +31,8 @@ def login(user: schemas.UserCreate, db: Session = Depends(get_db)):
         data={"sub": db_user.email}, expires_delta=access_token_expires
     )
     return {"access_token": token, "token_type": "bearer"}
+
+@router.get("/me", response_model=schemas.User)
+def get_current_user_info(current_user: models.User = Depends(get_current_user)):
+    """Get current authenticated user information"""
+    return current_user
