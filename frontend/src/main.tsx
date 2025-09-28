@@ -5,7 +5,18 @@ import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import ProductsList from "./pages/ProductsList";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
+import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <>{children}</>;
+}
 
 function ProtectedAdminRoute() {
   const { user } = useAuth();
@@ -66,12 +77,21 @@ function Navigation() {
               )}
             </div>
           </div>
-          <Link
-            to="/login"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150"
-          >
-            {user ? "Profile" : "Login"}
-          </Link>
+          {user ? (
+            <Link
+              to="/profile"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150"
+            >
+              Profile
+            </Link>
+          ) : (
+            <Link
+              to="/login"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-150"
+            >
+              Login
+            </Link>
+          )}
         </div>
       </div>
     </nav>
@@ -149,6 +169,14 @@ function App() {
           <Route path="/products" element={<ProductsList />} />
           <Route path="/admin" element={<ProtectedAdminRoute />} />
           <Route path="/login" element={<Login />} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

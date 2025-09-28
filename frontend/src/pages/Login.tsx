@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -13,7 +14,8 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8001/auth/login", {
+      const endpoint = isLogin ? "login" : "register";
+      const res = await fetch(`http://localhost:8001/auth/${endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -25,22 +27,30 @@ export default function Login() {
 
       if (res.ok) {
         const data = await res.json();
-        localStorage.setItem("token", data.access_token);
         
-        // Fetch user data after successful login
-        const userRes = await fetch("http://localhost:8001/auth/me", {
-          headers: {
-            "Authorization": `Bearer ${data.access_token}`
+        if (isLogin) {
+          localStorage.setItem("token", data.access_token);
+          
+          // Fetch user data after successful login
+          const userRes = await fetch("http://localhost:8001/auth/me", {
+            headers: {
+              "Authorization": `Bearer ${data.access_token}`
+            }
+          });
+          
+          if (userRes.ok) {
+            const userData = await userRes.json();
+            setUser(userData);
+            navigate(userData.is_admin ? "/admin" : "/products");
           }
-        });
-        
-        if (userRes.ok) {
-          const userData = await userRes.json();
-          setUser(userData);
-          navigate(userData.is_admin ? "/admin" : "/products");
+        } else {
+          setIsLogin(true); // Switch to login form after successful registration
+          setError("Registration successful! Please login.");
+          setForm({ email: "", password: "" });
         }
       } else {
-        setError("Invalid credentials");
+        const data = await res.json();
+        setError(data.detail || "An error occurred");
       }
     } catch (err) {
       setError("An error occurred. Please try again.");
@@ -50,9 +60,11 @@ export default function Login() {
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-gray-50">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h1 className="text-2xl font-bold text-center mb-6">Welcome Back</h1>
+        <h1 className="text-2xl font-bold text-center mb-6">
+          {isLogin ? "Welcome Back" : "Create Account"}
+        </h1>
         {error && (
-          <div className="bg-red-50 text-red-500 p-3 rounded-md mb-4 text-center">
+          <div className={`${error.includes("successful") ? "bg-green-50 text-green-500" : "bg-red-50 text-red-500"} p-3 rounded-md mb-4 text-center`}>
             {error}
           </div>
         )}
@@ -85,9 +97,19 @@ export default function Login() {
             type="submit"
             className="w-full py-2 px-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-md hover:from-blue-700 hover:to-blue-800 transition duration-300 shadow-md"
           >
-            Sign In
+            {isLogin ? "Sign In" : "Register"}
           </button>
         </form>
+        <div className="mt-4 text-center">
+          <button
+            onClick={() => setIsLogin(!isLogin)}
+            className="text-blue-600 hover:text-blue-800 text-sm"
+          >
+            {isLogin
+              ? "Don't have an account? Register"
+              : "Already have an account? Login"}
+          </button>
+        </div>
       </div>
     </div>
   );
