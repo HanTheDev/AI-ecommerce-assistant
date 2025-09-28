@@ -52,6 +52,19 @@ function ProtectedAdminRoute() {
 function Navigation() {
   const { user } = useAuth();
 
+  const navLinks = [
+    {
+      to: "/products",
+      label: "Products",
+      show: true,
+    },
+    {
+      to: "/admin",
+      label: "Admin",
+      show: user?.is_admin,
+    },
+  ];
+
   return (
     <nav className="bg-white shadow-lg">
       <div className="max-w-6xl mx-auto px-4">
@@ -61,20 +74,17 @@ function Navigation() {
               EcomAI
             </Link>
             <div className="hidden md:flex space-x-4">
-              <Link
-                to="/products"
-                className="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition duration-150"
-              >
-                Products
-              </Link>
-              {user?.is_admin && (
-                <Link
-                  to="/admin"
-                  className="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition duration-150"
-                >
-                  Admin
-                </Link>
-              )}
+              {navLinks
+                .filter((link) => link.show)
+                .map(({ to, label }) => (
+                  <Link
+                    key={to}
+                    to={to}
+                    className="px-3 py-2 rounded-md text-gray-700 hover:text-blue-600 hover:bg-gray-50 transition duration-150"
+                  >
+                    {label}
+                  </Link>
+                ))}
             </div>
           </div>
           {user ? (
