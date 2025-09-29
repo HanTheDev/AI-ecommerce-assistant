@@ -1,6 +1,14 @@
 from fastapi import FastAPI
-from app.routers import auth, products
 from fastapi.middleware.cors import CORSMiddleware
+from app.routers import auth, products
+from app.database import SessionLocal, engine, Base
+from app.startup import seed_admin   # 👈 import seeder
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Create tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="AI E-commerce Assistant API")
 
@@ -12,7 +20,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          # or ["*"] for all
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -20,6 +28,12 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(products.router)
+
+@app.on_event("startup")   # 👈 run when container starts
+def run_seed():
+    db = SessionLocal()
+    seed_admin(db)
+    db.close()
 
 @app.get("/")
 def root():

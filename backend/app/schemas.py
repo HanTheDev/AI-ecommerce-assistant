@@ -32,15 +32,40 @@ class Product(ProductBase):
     class Config:
         from_attributes = True
 
-class CartItem(BaseModel):
+class CartItemCreate(BaseModel):
     product_id: int
     quantity: int
 
-class Order(BaseModel):
+class CartItemResponse(BaseModel):
+    id: int
+    product_id: int
+    quantity: int
+    product: 'ProductInCart'
+
+    class Config:
+        from_attributes = True
+
+class ProductInCart(Product):
+    quantity: int = 0
+
+    class Config:
+        from_attributes = True
+
+class CartResponse(BaseModel):
+    items: List[CartItemResponse]
+    total: float
+
+    class Config:
+        from_attributes = True
+
+class OrderCreate(BaseModel):
+    items: List[CartItemCreate]
+
+class OrderResponse(BaseModel):
     id: int
     user_id: int
     created_at: datetime
-    items: List[CartItem]
+    items: List[CartItemResponse]
 
     class Config:
         from_attributes = True
