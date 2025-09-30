@@ -10,7 +10,7 @@ from app.deps import get_current_user
 router = APIRouter(prefix="/orders", tags=["orders"])
 
 # Cart endpoints
-@router.post("/cart", response_model=schemas.CartResponse)
+@router.post("/cart", response_model=schemas.CartResponse, responses={404: {"description": "Product not found"}, 400: {"description": "Not enough stock"}})
 def add_to_cart(
     item: schemas.CartItemCreate,
     db: Session = Depends(get_db),
@@ -85,7 +85,7 @@ def get_cart(
     total = sum(item.product.price * item.quantity for item in cart.items)
     return {"items": cart.items, "total": total}
 
-@router.delete("/cart/{item_id}")
+@router.delete("/cart/{item_id}", responses={404: {"description": "Cart not found"}, 404: {"description": "Item not found in cart"}})
 def remove_from_cart(
     item_id: int,
     db: Session = Depends(get_db),
@@ -117,7 +117,7 @@ def remove_from_cart(
     db.commit()
     return {"detail": "Item removed from cart"}
 
-@router.post("/checkout", response_model=schemas.OrderResponse)
+@router.post("/checkout", response_model=schemas.OrderResponse, responses={400: {"description": "Cart is empty"}, 400: {"description": "Not enough stock for product"}})
 def checkout(
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user),
