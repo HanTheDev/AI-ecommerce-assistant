@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import auth, products
+from app.routers import auth, products, orders
 from app.database import SessionLocal, engine, Base
 from app.startup import seed_admin   # 👈 import seeder
 from dotenv import load_dotenv
@@ -28,6 +28,8 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(products.router)
+app.include_router(orders.router)
+
 
 @app.on_event("startup")   # 👈 run when container starts
 def run_seed():

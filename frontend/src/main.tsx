@@ -7,6 +7,8 @@ import Admin from "./pages/Admin";
 import Login from "./pages/Login";
 import Profile from "./pages/Profile";
 import { AuthProvider, useAuth } from "./context/AuthContext";
+import Cart from "./pages/Cart";
+import OrderHistory from "./pages/OrderHistory";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
@@ -57,6 +59,16 @@ function Navigation() {
       to: "/products",
       label: "Products",
       show: true,
+    },
+    {
+      to: "/cart",
+      label: "Cart",
+      show: !!user,
+    },
+    {
+      to: "/orders",
+      label: "Orders",
+      show: !!user,
     },
     {
       to: "/admin",
@@ -184,6 +196,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <ProtectedRoute>
+                <Cart />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders"
+            element={
+              <ProtectedRoute>
+                <OrderHistory />
               </ProtectedRoute>
             }
           />

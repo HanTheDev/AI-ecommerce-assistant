@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 type Product = {
   id: number;
@@ -11,19 +13,47 @@ type Product = {
 export default function ProductsList() {
   const [products, setProducts] = useState<Product[]>([]);
   const [selected, setSelected] = useState<Product | null>(null);
+  const [quantity, setQuantity] = useState(1);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetch("http://localhost:8001/products")
-      .then((res) => {
-        console.log("Response status:", res.status);
-        return res.json();
-      })
-      .then((data) => {
-        console.log("Fetched products:", data);
-        setProducts(data);
-      })
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
       .catch((err) => console.error("Fetch error:", err));
   }, []);
+
+  const handleAddToCart = async (productId: number) => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:8001/orders/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: quantity,
+        }),
+      });
+
+      if (res.ok) {
+        alert("Added to cart successfully!");
+        setQuantity(1);
+      } else {
+        const error = await res.json();
+        alert(error.detail || "Failed to add to cart");
+      }
+    } catch (err) {
+      alert("Error adding to cart");
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-8">
@@ -63,6 +93,22 @@ export default function ProductsList() {
                   ${selected.price}
                 </p>
               </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <input
+                type="number"
+                min="1"
+                max={selected.stock}
+                value={quantity}
+                onChange={(e) => setQuantity(Number(e.target.value))}
+                className="w-20 p-2 border rounded"
+              />
+              <button
+                onClick={() => handleAddToCart(selected.id)}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
         )}
