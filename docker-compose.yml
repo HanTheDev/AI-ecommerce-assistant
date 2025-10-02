@@ -39,6 +39,17 @@ services:
       - "5433:5432"  # Change host port from 5432 to 5433
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  
+  recommender:
+    build: ./recommender
+    container_name: recommender
+    ports:
+      - "8002:8000"  # Map to different host port
+    volumes:
+      - ./recommender:/app
+      - ./data/model_artifacts:/app/data/model_artifacts  # Mount model artifacts
+    depends_on:
+      - db
 
 volumes:
   postgres_data:

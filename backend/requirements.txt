@@ -6,3 +6,4 @@ pydantic
 alembic
 python-jose[cryptography]
 passlib[bcrypt]
+httpx
