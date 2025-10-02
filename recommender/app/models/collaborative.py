@@ -19,3 +19,27 @@ class CollaborativeFilter(nn.Module):
             )
             _, indices = similarities.topk(n + 1)
             return indices[1:].tolist()  # Exclude the item itself
+
+    def get_user_recommendations(self, user_id, n=5):
+        with torch.no_grad():
+            user_embedding = self.user_factors.weight[user_id]
+            scores = torch.matmul(user_embedding, self.item_factors.weight.t())
+            _, indices = scores.topk(n)
+            return indices.tolist()
+
+    @classmethod
+    def load_pretrained(cls, model_path):
+        """Load a pretrained model"""
+        # Load the saved state dict
+        state_dict = torch.load(model_path)
+        
+        # Get dimensions from the state dict
+        n_users = state_dict['user_factors.weight'].shape[0]
+        n_items = state_dict['item_factors.weight'].shape[0]
+        n_factors = state_dict['user_factors.weight'].shape[1]
+        
+        # Create new model instance
+        model = cls(n_users, n_items, n_factors)
+        model.load_state_dict(state_dict)
+        model.eval()  # Set to evaluation mode
+        return model
