@@ -1,9 +1,11 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, HTTPException
 from typing import List
 import torch
-import numpy as np
+import os
+from dotenv import load_dotenv
 from .models.collaborative import CollaborativeFilter
-from .utils.preprocessing import preprocess_data
+
+load_dotenv()
 
 app = FastAPI()
 model = None
@@ -11,16 +13,31 @@ model = None
 @app.on_event("startup")
 async def load_model():
     global model
-    model = CollaborativeFilter.load_pretrained("./data/model_artifacts/collaborative_model.pt")
+    try:
+        model_path = os.getenv("MODEL_PATH", "./data/model_artifacts/collaborative_model.pt")
+        model = CollaborativeFilter.load_pretrained(model_path)
+    except Exception as e:
+        print(f"Error loading model: {str(e)}")
+        raise RuntimeError("Failed to load recommendation model")
 
 @app.get("/recommendations/similar/{product_id}")
 async def get_similar_products(product_id: int) -> List[int]:
     """Get similar products based on collaborative filtering"""
-    similar_products = model.get_similar_items(product_id)
-    return similar_products
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model not initialized")
+    try:
+        similar_products = model.get_similar_items(product_id)
+        return similar_products
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/recommendations/user/{user_id}")
 async def get_user_recommendations(user_id: int) -> List[int]:
     """Get personalized recommendations for a user"""
-    recommendations = model.get_user_recommendations(user_id)
-    return recommendations
+    if model is None:
+        raise HTTPException(status_code=503, detail="Model not initialized")
+    try:
+        recommendations = model.get_user_recommendations(user_id)
+        return recommendations
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
