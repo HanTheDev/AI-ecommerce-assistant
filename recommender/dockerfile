@@ -7,12 +7,19 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
+RUN pip install --upgrade pip
+RUN pip config set global.index-url https://pypi.org/simple
+RUN pip config set global.timeout 1000
+
+# Copy and run PyTorch installation script first
+COPY scripts/install_torch.sh .
+RUN chmod +x install_torch.sh && ./install_torch.sh
+
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Initialize models on container build
-RUN python -m app.init_models
 
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

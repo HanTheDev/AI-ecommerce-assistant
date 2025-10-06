@@ -4,6 +4,7 @@ import torch
 import os
 from dotenv import load_dotenv
 from .models.collaborative import CollaborativeFilter
+from .utils.initialize_model import initialize_models
 
 load_dotenv()
 
@@ -14,6 +15,8 @@ model = None
 async def load_model():
     global model
     try:
+        initialize_models()
+        
         model_path = os.getenv("MODEL_PATH", "./data/model_artifacts/collaborative_model.pt")
         model = CollaborativeFilter.load_pretrained(model_path)
     except Exception as e:
