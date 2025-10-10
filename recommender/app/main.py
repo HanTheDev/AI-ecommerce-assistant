@@ -28,7 +28,7 @@ async def get_similar_products(product_id: int) -> List[int]:
     """Get similar products based on collaborative filtering"""
     if model is None:
         raise HTTPException(status_code=503, detail="Model not initialized")
-    try:
+    try:    
         similar_products = model.get_similar_items(product_id)
         return similar_products
     except Exception as e:

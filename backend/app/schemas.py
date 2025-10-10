@@ -14,7 +14,7 @@ class User(UserBase):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ProductBase(BaseModel):
     name: str
@@ -30,7 +30,7 @@ class Product(ProductBase):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CartItemCreate(BaseModel):
     product_id: int
@@ -43,20 +43,20 @@ class CartItemResponse(BaseModel):
     product: 'ProductInCart'
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class ProductInCart(Product):
     quantity: int = 0
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CartResponse(BaseModel):
     items: List[CartItemResponse]
     total: float
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class OrderCreate(BaseModel):
     items: List[CartItemCreate]
@@ -68,4 +68,8 @@ class OrderResponse(BaseModel):
     items: List[CartItemResponse]
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+CartItemResponse.update_forward_refs()
+CartResponse.update_forward_refs()
+OrderResponse.update_forward_refs()

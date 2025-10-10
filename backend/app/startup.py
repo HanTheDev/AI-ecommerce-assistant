@@ -11,6 +11,10 @@ def seed_admin(db: Session):
     if not admin_email or not admin_password:
         print("⚠️ ERROR: ADMIN_EMAIL and ADMIN_PASSWORD environment variables must be set")
         return
+    
+    if len(admin_password.encode()) > 72:
+        admin_password = admin_password[:72]
+        print("⚠️ WARNING: Admin password was truncated to 72 bytes")
 
     try:
         existing_admin = db.query(models.User).filter_by(email=admin_email).first()
