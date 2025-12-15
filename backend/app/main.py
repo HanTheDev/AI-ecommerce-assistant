@@ -4,9 +4,13 @@ from app.routers import auth, products, orders, recommendations
 from app.database import SessionLocal, engine, Base
 from app.startup import seed_admin
 from dotenv import load_dotenv
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 import os
 
 load_dotenv()
+
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -16,6 +20,11 @@ app = FastAPI(
     description="Backend API for AI-powered e-commerce platform",
     version="1.0.0"
 )
+
+# Initialize rate limiter
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # CORS configuration from environment
 origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
