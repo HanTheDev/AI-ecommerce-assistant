@@ -2,21 +2,29 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, products, orders, recommendations
 from app.database import SessionLocal, engine, Base
-from app.startup import seed_admin   # 👈 import seeder
+from app.startup import seed_admin
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 
 # Create tables
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="AI E-commerce Assistant API")
+app = FastAPI(
+    title="AI E-commerce Assistant API",
+    description="Backend API for AI-powered e-commerce platform",
+    version="1.0.0"
+)
 
-# Allow your frontend origin
-origins = [
-    "http://localhost:5174",  # React dev server
-    "http://127.0.0.1:5174",
-]
+# CORS configuration from environment
+origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+if not origins or origins == [""]:
+    # Default for development
+    origins = [
+        "http://localhost:5174",
+        "http://127.0.0.1:5174",
+    ]
 
 app.add_middleware(
     CORSMiddleware,
@@ -26,18 +34,29 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include routers
 app.include_router(auth.router)
 app.include_router(products.router)
 app.include_router(orders.router)
 app.include_router(recommendations.router)
 
-
-@app.on_event("startup")   # 👈 run when container starts
+@app.on_event("startup")
 def run_seed():
     db = SessionLocal()
-    seed_admin(db)
-    db.close()
+    try:
+        seed_admin(db)
+    finally:
+        db.close()
 
 @app.get("/")
 def root():
-    return {"message": "Backend is running 🚀"}
+    return {
+        "message": "AI E-commerce API is running 🚀",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
+
+@app.get("/health")
+def health_check():
+    """Health check endpoint for monitoring"""
+    return {"status": "healthy", "service": "backend"}
