@@ -46,24 +46,24 @@ services:
       timeout: 5s
       retries: 5
   
-  recommender:
-    build: 
-      context: ./recommender
-      args:
-        TIMEOUT: 1000  # Increase build timeout to 1000 seconds
-    container_name: recommender
-    ports:
-      - "8002:8000"  # Map to different host port
-    volumes:
-      - ./recommender:/app
-      # - ./recommender/app/utils/data/model_artifacts:/app/utils/data/model_artifacts  # Mount model artifacts
-    environment:
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
-      - PIP_TIMEOUT=1000  # Increase pip timeout
-    depends_on:
-      db:
-        condition: service_healthy
-    restart: on-failure
+  # recommender:
+  #   build: 
+  #     context: ./recommender
+  #     args:
+  #       TIMEOUT: 1000  # Increase build timeout to 1000 seconds
+  #   container_name: recommender
+  #   ports:
+  #     - "8002:8000"  # Map to different host port
+  #   volumes:
+  #     - ./recommender:/app
+  #     # - ./recommender/app/utils/data/model_artifacts:/app/utils/data/model_artifacts  # Mount model artifacts
+  #   environment:
+  #     - DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
+  #     - PIP_TIMEOUT=1000  # Increase pip timeout
+  #   depends_on:
+  #     db:
+  #       condition: service_healthy
+  #   restart: on-failure
 
 volumes:
   postgres_data:
